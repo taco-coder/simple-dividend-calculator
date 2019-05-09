@@ -22,4 +22,6 @@ for iter in range(1, years + 1):
    initial += monthly * 12
    #.format is used to give the initial 2 decimal places
    print ("Year %d:{0:.2f}".format(initial) % iter)
+
+#prevents script from closing if running in Windows CMD prompt
 os.system("pause")
