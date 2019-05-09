@@ -2,9 +2,12 @@
 """
 Spyder Editor
 
-This is a temporary script file.
+This file simply takes an initial investment, a yearly yield, a monthly contribution, 
+and a number of years to print out a persons ROI. 
+
+Author:Tahwab Noori
+Date:May 9, 2019
 """
-print ('Hello world')
 
 initial = float(input("Initial investment?"))
 dividend = float(input("Yearly dividend yield?"))
