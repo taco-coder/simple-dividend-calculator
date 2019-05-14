@@ -72,11 +72,19 @@ def fileMaker():
             outputPath = os.makedirs(currentPath + '/output_files')
         else:
             outputPath = currentPath + '/output_files'
-            os.chdir(outputPath)  
-        if (val == 'y' or 'Y'):
+            os.chdir(outputPath) 
+        if len(os.listdir(outputPath)) == '0':
             currentTime = time.strftime("%Y_%m_%d@%Hh%Mm%Ss")
             output = open("output-%s.txt" % currentTime, 'w')
-            return output
+        else:
+            value = str(input("There currently exists a previous savefile. Would you like to overwrite or create a new save file?\n(O = overwrite/C = create new file)"))
+            if (value == 'c' or 'C'):
+                currentTime = time.strftime("%Y_%m_%d@%Hh%Mm%Ss")
+                output = open("output-%s.txt" % currentTime, 'w')
+            elif(value == 'o' or 'O'):
+                 for iter in os.listdir(outputPath):
+                     print('%d-' % iter)
+        return output
 
 #dynamic sets the values for all the args and params then calls the appropriate functions based on the users input
 def dynamic():
