@@ -7,18 +7,23 @@ reinvestment intervals at given intervals
 Author:Tahwab Noori
 Date:May 9, 2019
 """
-import os
-import time
+import os, time, requests, bs4, sys
 
-initial = float(input("Initial investment?"))
-dividend = float(input("Yearly dividend yield?"))
-monthly = float(input("Monthly contribution?"))
-years = int(input("Number of years?"))
+
+
 currentTime = time.strftime("%Y_%m_%d@%Hh%Mm%Ss")
 
+def userDividend():
+     initial = float(input("Initial investment?"))
+     dividend = float(input("Yearly dividend yield?"))
+     monthly = float(input("Monthly contribution?"))
+     years = int(input("Number of years?"))
+     return initial, dividend, monthly, years
+ 
 #noReinvest takes the years, monthly, initial, and dividend float values and 
 #calculates the users yearly returns at that fixed rate
-def noReinvest(years, monthly, initial, dividend):
+def noReinvest(initial, dividend, monthly, years):
+
      output = fileMaker()
      for iter in range(1, years + 1): #how many years of investing
             initial *= (1 + (dividend) /100)
@@ -32,12 +37,14 @@ def noReinvest(years, monthly, initial, dividend):
 #reinvest takes years, monthly, initial, dividend, interval and reinvest then calculates users
 #yearly returns while also increasing the reinvestment rate at user-defined intervals. Also prints out
 #monthly returns for more precise investing goals.
-def reinvest(years, monthly, initial, dividend):
-     
+def reinvest(initial, dividend, monthly, years):
+
      interval = int(input("How many times a year would you like to interval your monthly contributions?"))
      reinvest = float(input("How much would you like to interval your contribution by each time?"))      
      value = str(input("Would you like to print out monthly returns as well?(y/n)"))
+     
      outfile = fileMaker()
+     
      #for loop with nested loop to 
      for iter in range(1, years + 1): #how many years of investing
             #loop finds the return each month
@@ -113,17 +120,32 @@ def fileOverWriter(outputPath):
     return newName
         
 #dynamic sets the values for all the args and params then calls the appropriate functions based on the users input
-def dynamic():
+def dynamic(initial, dividend, monthly, years):
     value = str(input("Would you like the option of increasing your monthly contributions after some months? (y/n)"))
     
     if(value == 'y'):       
-        reinvest(years, monthly, initial, dividend)         
+        reinvest(initial, dividend, monthly, years)         
     elif(value == 'n'):      
-        noReinvest(years, monthly, initial, dividend)       
+        noReinvest(initial, dividend, monthly, years)       
     else: #if user makes an invalid selection, runs dynamic again
         print("Error: invalid input. Please try again.")
         dynamic()
         
+def searchDividend():
+    value = str(input("Do you want to search a specific ticker for your dividend calculation?(y/n)"))
+    if(value == 'n' or 'N'):
+        dynamic(userDividend())
+    elif(value == 'y' or 'Y'):
+        googleDividend()
+
+def googleDividend():
+    print("Please enter the ticker you would like to search for. (AAPl, KO, DIS, BABA, etc.)")
+    ticker = ' '.join(sys.argv[1:])
+    searchResult = requests.get("https://www.google.com/search?q=" + ticker + "+stock")
+    searchResult.raise_for_status()
+    searchText = bs4.BeautifulSoup(searchResult)
+    searchElem = searchText.select('div[class="ZSM8k"] > table > tbody td[class="iyjjb"]')
+    
 #start
 dynamic()
 os.system("pause") #prevents script from closing if running in Windows CMD prompt
