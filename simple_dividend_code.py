@@ -12,7 +12,7 @@ import os, time, requests, bs4, sys
 
 
 currentTime = time.strftime("%Y_%m_%d@%Hh%Mm%Ss")
-
+#userDividend gets the users input values for the variables.s
 def userDividend():
      initial = float(input("Initial investment?"))
      dividend = float(input("Yearly dividend yield?"))
@@ -24,52 +24,84 @@ def userDividend():
 #calculates the users yearly returns at that fixed rate
 def noReinvest(initial, dividend, monthly, years):
 
-     output = fileMaker()
-     for iter in range(1, years + 1): #how many years of investing
-            initial *= (1 + (dividend) /100)
-            if iter != 1:
-                initial += monthly * 12
-            #.format is used to give the initial 2 decimal places
-            print ("End of year %d:${0:.2f}".format(initial) % iter)
-            output.write("End of year %d:${0:.2f}\n".format(initial) % iter)
-     output.close()
-
+     outfile = fileMaker()
+     if(outfile != None):
+         for iter in range(1, years + 1): #how many years of investing
+             initial *= (1 + (dividend) /100)
+             if iter != 1:
+                 initial += monthly * 12
+                 #.format is used to give the initial 2 decimal places
+             print ("End of year %d:${0:.2f}".format(initial) % iter)
+             outfile.write("\n\nEnd of year %d:${0:.2f}\n\n\n".format(initial) % iter)
+         outfile.close()
+     elif(outfile == None):
+         for iter in range(1, years + 1): #how many years of investing
+             initial *= (1 + (dividend) /100)
+             if iter != 1:
+                 initial += monthly * 12
+                 #.format is used to give the initial 2 decimal places
+             print ("End of year %d:${0:.2f}".format(initial) % iter)
+                         
 #reinvest takes years, monthly, initial, dividend, interval and reinvest then calculates users
 #yearly returns while also increasing the reinvestment rate at user-defined intervals. Also prints out
 #monthly returns for more precise investing goals.
 def reinvest(initial, dividend, monthly, years):
 
-     interval = int(input("How many times a year would you like to interval your monthly contributions?"))
-     reinvest = float(input("How much would you like to interval your contribution by each time?"))      
+     interval = int(input("How many times a year would you like to increase your monthly contributions?"))
+     reinvest = float(input("How much would you like to increase your contribution by each time?"))      
      value = str(input("Would you like to print out monthly returns as well?(y/n)"))
      
      outfile = fileMaker()
-     
-     #for loop with nested loop to 
-     for iter in range(1, years + 1): #how many years of investing
-            #loop finds the return each month
-            #after some interval, the reinvestment amount increases
-            for i in range (0, interval):
-                
-                for j in range (1, int(12 / interval) + 1):
-                    
-                    initial *= (1 + (dividend / 12) /100)
-                    initial += monthly
-                    #.format is used to give the initial 2 decimal places                
-                    if(value == 'y' or 'Y'):
-                        print("End of month %d:${0:.2f}".format(initial) % (j + (i * (12 / interval))))
-                        outfile.write("End of month %d:${0:.2f}".format(initial) % (j + (i * (12 / interval))))
-                #reinvestment amount increases
-                monthly += reinvest
-                
-                print('Investment interval: ' + str(reinvest))
-                outfile.write('Investment interval: ' + str(reinvest))
-                print('Current reinvestment amount: ' + str(monthly))
-                outfile.write('Current reinvestment amount: ' + str(monthly))
-                
-            print("End of year %d:${0:.2f}".format(initial) % iter)
-            outfile.write("End of year %d:${0:.2f}".format(initial) % iter)
-     outfile.close()
+     if(outfile != None):
+         #for loop with nested loop to 
+         for iter in range(1, years + 1): #how many years of investing
+             #after some interval, the reinvestment amount increases
+             for i in range (0, interval):
+                 #loop finds the return each month
+                 for j in range (1, int(12 / interval) + 1):
+                     
+                     initial *= (1 + (dividend / 12) /100)
+                     initial += monthly
+                     #.format is used to give the initial 2 decimal places   
+                     #endOfMonths is used to calculate what the current month is based on the amount of times the 12 months are broken up into intervals.                     
+                     endOfMonths = j + (i * (12 / interval))
+                     if(value == 'y'):
+                         print("End of month %d:${0:.2f}".format(initial) % (j + (i * (12 / interval))))
+                         outfile.write("End of month %d:${0:.2f}\n".format(initial) % (j + (i * (12 / interval))))
+                         
+                         print('Current reinvestment amount: ' + str(monthly))
+                         outfile.write('Current reinvestment amount: ' + str(monthly) + '\n')
+                     if(endOfMonths == 12):
+                         print("End of year %d:${0:.2f}\n".format(initial) % iter)
+                         outfile.write("\n\nEnd of year %d:${0:.2f}\n\n\n".format(initial) % iter)
+                 #end of current interval
+                 monthly += reinvest
+
+         outfile.close()
+     elif(outfile == None):
+          #for loop with nested loop to 
+         for iter in range(1, years + 1): #how many years of investing             
+             #after some interval, the reinvestment amount increases
+             for i in range (0, interval):
+                 #loop finds the return each month
+                 for j in range (1, int(12 / interval) + 1):
+                     
+                     initial *= (1 + (dividend / 12) /100)
+                     #.format is used to give the initial 2 decimal places 
+                     #endOfMonths is used to calculate what the current month is based on the amount of times the 12 months are broken up into intervals.
+                     #multiplied by current interval. eg adds X months times the ith interval to the current month
+                     endOfMonths = j + (i * (12 / interval))
+                     if(value == 'y' or 'Y'):
+                         print("End of month %d:${0:.2f}".format(initial) % (j + (i * (12 / interval))))                         
+                         print('Current reinvestment amount: ' + str(monthly))
+                     if(endOfMonths == 12):
+                         print("End of year %d:${0:.2f}".format(initial) % iter)
+                 #end of current interval
+                 monthly += reinvest
+                 #checks if it reaches the complete end of all the months and years. Doesn't print out the 'increased' statement at the end of the program
+                 if(endOfMonths != 12 and iter != years):
+                     print('Investment increased: ' + str(reinvest))
+            
 #fileMaker asks the user if they would like to save the data to a textfile.
 #it checks if the the appropriate directory exists and creates it if necessary. It gives the user the option
 #of overwriting an existing save file or creating a new file, respectivly. Calls the fileOverWriter function for overwriting.
@@ -77,15 +109,15 @@ def fileMaker():
     
     val = str(input("Would you like to save your data to a textfile?(y/n)"))
     
-    if(val == 'y' or 'Y'):
+    if(val == 'y'):
         currentPath = os.getcwd()
         #checks if directory currently exists and creates directory if it doesn't.
-        if(os.path.exists(currentPath + '/output_files') == False):
-            outputPath = os.makedirs(currentPath + '/output_files')
+        if(os.path.exists(currentPath + '\output_files') == False):
+            outputPath = os.makedirs(currentPath + '\output_files')
         else:
-            outputPath = currentPath + '/output_files'
+            outputPath = currentPath + '\output_files'
             os.chdir(outputPath) 
-        if len(os.listdir(outputPath)) == '0':
+        if (len(os.listdir(outputPath)) == 0):
             output = open("output-%s.txt" % currentTime, 'w')
         else:
             control = False
@@ -100,6 +132,8 @@ def fileMaker():
                 else:
                     print("Invalid input. Please try again.")
         return output
+    elif(val == 'n'):
+        return None
 #fileOverWriter takes the outputPath of the folder containing the output files and prints them to the user.
 #The user then chooses a file from the list to overwrite. The file is respectively renamed and the newly named file is returned.
 def fileOverWriter(outputPath):
@@ -132,20 +166,21 @@ def dynamic(initial, dividend, monthly, years):
         dynamic()
         
 def searchDividend():
-    value = str(input("Do you want to search a specific ticker for your dividend calculation?(y/n)"))
-    if(value == 'n' or 'N'):
-        dynamic(userDividend())
-    elif(value == 'y' or 'Y'):
+    value = str(input("Do you want to search a specific ticker for your dividend calculation? (y/n)"))
+    if(value == 'n'):
+        initial, dividend, monthly, years = userDividend()
+        dynamic(initial, dividend, monthly, years)
+    elif(value == 'y'):
         googleDividend()
 
 def googleDividend():
-    print("Please enter the ticker you would like to search for. (AAPl, KO, DIS, BABA, etc.)")
-    ticker = ' '.join(sys.argv[1:])
+    ticker = str(input("Please enter the ticker you would like to search for. (AAPl, KO, DIS, BABA, etc.)"))
     searchResult = requests.get("https://www.google.com/search?q=" + ticker + "+stock")
     searchResult.raise_for_status()
-    searchText = bs4.BeautifulSoup(searchResult)
-    searchElem = searchText.select('div[class="ZSM8k"] > table > tbody td[class="iyjjb"]')
+    searchText = bs4.BeautifulSoup(searchResult.text, 'html.parser')
+    searchElem = searchText.select('div td')
+    print(len(searchElem))
     
 #start
-dynamic()
+searchDividend()
 os.system("pause") #prevents script from closing if running in Windows CMD prompt
