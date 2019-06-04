@@ -28,8 +28,8 @@ def noReinvest(initial, dividend, monthly, years):
      if(outfile != None):
          for iter in range(1, years + 1): #how many years of investing
              initial *= (1 + (dividend) /100)
-             if iter != 1:
-                 initial += monthly * 12
+          
+             initial += monthly * 12
                  #.format is used to give the initial 2 decimal places
              print ("End of year %d:${0:.2f}".format(initial) % iter)
              outfile.write("\n\nEnd of year %d:${0:.2f}\n\n\n".format(initial) % iter)
@@ -37,8 +37,8 @@ def noReinvest(initial, dividend, monthly, years):
      elif(outfile == None):
          for iter in range(1, years + 1): #how many years of investing
              initial *= (1 + (dividend) /100)
-             if iter != 1:
-                 initial += monthly * 12
+             
+             initial += monthly * 12
                  #.format is used to give the initial 2 decimal places
              print ("End of year %d:${0:.2f}".format(initial) % iter)
                          
