@@ -191,4 +191,4 @@ def googleDividend():
     
 #start
 searchDividend()
-os.system("pause") #prevents script from closing if running in Windows CMD prompt
+input("Press ENTER to exit") #prevents script from closing if running in Windows CMD prompt
