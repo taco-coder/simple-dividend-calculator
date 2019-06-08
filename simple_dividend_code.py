@@ -163,7 +163,8 @@ def dynamic(initial, dividend, monthly, years):
     else: #if user makes an invalid selection, runs dynamic again
         print("Error: invalid input. Please try again.")
         dynamic()
-        
+#searchDividend determines first and foremost if the user wants to search the web for a specific
+#stock ticker to extract that tickers dividend for their calculations
 def searchDividend():
     value = str(input("Do you want to search a specific ticker for your dividend calculation? (y/n)"))
     if(value == 'n'):
@@ -171,24 +172,28 @@ def searchDividend():
         dividend = float(input("Yearly dividend yield?"))
         dynamic(initial, dividend, monthly, years)
     elif(value == 'y'):
+        dividend = scrapeDividend()
         initial, monthly, years = userValues()       
-        dividend = googleDividend()
         dynamic(initial, dividend, monthly, years)
-
-def googleDividend():
-    ticker = str(input("Please enter the ticker you would like to search for. (AAPl, KO, DIS, BABA, etc.)"))
-    searchResult = requests.get("https://www.nasdaq.com/symbol/" + ticker)
-    searchResult.raise_for_status()
-    searchText = bs4.BeautifulSoup(searchResult.text, 'html.parser')
-    searchMain = searchText.select(".column > .table-table")[1].select(".table-row > .table-cell")
-
-    for iter in range(0, len(searchMain)):
-        tableText = searchMain[iter].text.replace(" ", "").replace("\n", "")
-        if(tableText == "CurrentYield"):
-            divText = searchMain[iter + 1].text.replace(" ", "").replace("\n", "").replace("%", "")
-            return float(divText)
+#scrapeDividend uses bs4 to scrape the official Nasdaq website after  for a specific stock ticker and returns the dividend as a float
+def scrapeDividend():
+    try:
+        ticker = str(input("Please enter the ticker you would like to search for. (AAPl, KO, DIS, BABA, etc.)")).lower()
+        searchResult = requests.get("https://www.nasdaq.com/symbol/" + ticker)
+        searchResult.raise_for_status()
+        searchText = bs4.BeautifulSoup(searchResult.text, 'html.parser')
+        searchMain = searchText.select(".column > .table-table")[1].select(".table-row > .table-cell")
+        for iter in range(0, len(searchMain)):
+            tableText = searchMain[iter].text.replace(" ", "").replace("\n", "")
+            if(tableText == "CurrentYield"):
+                divText = searchMain[iter + 1].text.replace(" ", "").replace("\n", "").replace("%", "")
+                return float(divText)
+    except:
+        print("The ticker entered is invalid.")
+        scrapeDividend()
 
     
 #start
 searchDividend()
 input("Press ENTER to exit") #prevents script from closing if running in Windows CMD prompt
+
