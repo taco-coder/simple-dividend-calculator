@@ -7,18 +7,17 @@ reinvestment intervals at given intervals
 Author:Tahwab Noori
 Date:May 9, 2019
 """
-import os, time, requests, bs4, sys
+import os, time, requests, bs4
 
 
 
 currentTime = time.strftime("%Y_%m_%d@%Hh%Mm%Ss")
-#userDividend gets the users input values for the variables.s
-def userDividend():
-     initial = float(input("Initial investment?"))
-     dividend = float(input("Yearly dividend yield?"))
+#userValues gets the users input values for the variables.s
+def userValues():
+     initial = float(input("Initial investment?"))     
      monthly = float(input("Monthly contribution?"))
      years = int(input("Number of years?"))
-     return initial, dividend, monthly, years
+     return initial, monthly, years
  
 #noReinvest takes the years, monthly, initial, and dividend float values and 
 #calculates the users yearly returns at that fixed rate
@@ -168,18 +167,27 @@ def dynamic(initial, dividend, monthly, years):
 def searchDividend():
     value = str(input("Do you want to search a specific ticker for your dividend calculation? (y/n)"))
     if(value == 'n'):
-        initial, dividend, monthly, years = userDividend()
+        initial, monthly, years = userValues()
+        dividend = float(input("Yearly dividend yield?"))
         dynamic(initial, dividend, monthly, years)
     elif(value == 'y'):
-        googleDividend()
+        initial, monthly, years = userValues()       
+        dividend = googleDividend()
+        dynamic(initial, dividend, monthly, years)
 
 def googleDividend():
     ticker = str(input("Please enter the ticker you would like to search for. (AAPl, KO, DIS, BABA, etc.)"))
-    searchResult = requests.get("https://www.google.com/search?q=" + ticker + "+stock")
+    searchResult = requests.get("https://www.nasdaq.com/symbol/" + ticker)
     searchResult.raise_for_status()
     searchText = bs4.BeautifulSoup(searchResult.text, 'html.parser')
-    searchElem = searchText.select('div td')
-    print(len(searchElem))
+    searchMain = searchText.select(".column > .table-table")[1].select(".table-row > .table-cell")
+
+    for iter in range(0, len(searchMain)):
+        tableText = searchMain[iter].text.replace(" ", "").replace("\n", "")
+        if(tableText == "CurrentYield"):
+            divText = searchMain[iter + 1].text.replace(" ", "").replace("\n", "").replace("%", "")
+            return float(divText)
+
     
 #start
 searchDividend()
