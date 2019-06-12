@@ -14,9 +14,12 @@ import os, time, requests, bs4
 currentTime = time.strftime("%Y_%m_%d@%Hh%Mm%Ss")
 #userValues gets the users input values for the variables.s
 def userValues():
-     initial = float(input("Initial investment?"))     
+     initial = float(input("Initial investment?")) 
      monthly = float(input("Monthly contribution?"))
      years = int(input("Number of years?"))
+     while type(initial) != float or type(monthly) != float or type(years) != int:
+         print("One of the input values was incorrect. Please try again.")
+         userValues()
      return initial, monthly, years
  
 #noReinvest takes the years, monthly, initial, and dividend float values and 
@@ -24,7 +27,7 @@ def userValues():
 def noReinvest(initial, dividend, monthly, years):
 
      outfile = fileMaker()
-     if(outfile != None):
+     if outfile != None:
          for iter in range(1, years + 1): #how many years of investing
              initial *= (1 + (dividend) /100)
           
@@ -33,7 +36,7 @@ def noReinvest(initial, dividend, monthly, years):
              print ("End of year %d:${0:.2f}".format(initial) % iter)
              outfile.write("\n\nEnd of year %d:${0:.2f}\n\n\n".format(initial) % iter)
          outfile.close()
-     elif(outfile == None):
+     elif outfile == None:
          for iter in range(1, years + 1): #how many years of investing
              initial *= (1 + (dividend) /100)
              
@@ -51,7 +54,7 @@ def reinvest(initial, dividend, monthly, years):
      value = str(input("Would you like to print out monthly returns as well?(y/n)"))
      
      outfile = fileMaker()
-     if(outfile != None):
+     if outfile != None:
          #for loop with nested loop to 
          for iter in range(1, years + 1): #how many years of investing
              #after some interval, the reinvestment amount increases
@@ -64,13 +67,13 @@ def reinvest(initial, dividend, monthly, years):
                      #.format is used to give the initial 2 decimal places   
                      #endOfMonths is used to calculate what the current month is based on the amount of times the 12 months are broken up into intervals.                     
                      endOfMonths = j + (i * (12 / interval))
-                     if(value == 'y'):
+                     if value == 'y':
                          print("End of month %d:${0:.2f}".format(initial) % (j + (i * (12 / interval))))
                          outfile.write("End of month %d:${0:.2f}\n".format(initial) % (j + (i * (12 / interval))))
                          
                          print('Current reinvestment amount: ' + str(monthly))
                          outfile.write('Current reinvestment amount: ' + str(monthly) + '\n')
-                     if(endOfMonths == 12):
+                     if endOfMonths == 12:
                          print("End of year %d:${0:.2f}\n".format(initial) % iter)
                          outfile.write("\n\nEnd of year %d:${0:.2f}\n\n\n".format(initial) % iter)
                  #end of current interval
@@ -90,15 +93,15 @@ def reinvest(initial, dividend, monthly, years):
                      #endOfMonths is used to calculate what the current month is based on the amount of times the 12 months are broken up into intervals.
                      #multiplied by current interval. eg adds X months times the ith interval to the current month
                      endOfMonths = j + (i * (12 / interval))
-                     if(value == 'y' or 'Y'):
+                     if value == 'y' or 'Y':
                          print("End of month %d:${0:.2f}".format(initial) % (j + (i * (12 / interval))))                         
                          print('Current reinvestment amount: ' + str(monthly))
-                     if(endOfMonths == 12):
+                     if endOfMonths == 12:
                          print("End of year %d:${0:.2f}".format(initial) % iter)
                  #end of current interval
                  monthly += reinvest
                  #checks if it reaches the complete end of all the months and years. Doesn't print out the 'increased' statement at the end of the program
-                 if(endOfMonths != 12 and iter != years):
+                 if endOfMonths != 12 and iter != years:
                      print('Investment increased: ' + str(reinvest))
             
 #fileMaker asks the user if they would like to save the data to a textfile.
@@ -108,15 +111,15 @@ def fileMaker():
     
     val = str(input("Would you like to save your data to a textfile?(y/n)"))
     
-    if(val == 'y'):
+    if val == 'y':
         currentPath = os.getcwd()
         #checks if directory currently exists and creates directory if it doesn't.
-        if(os.path.exists(currentPath + '\output_files') == False):
+        if os.path.exists(currentPath + '\output_files') == False:
             outputPath = os.makedirs(currentPath + '\output_files')
         else:
             outputPath = currentPath + '\output_files'
             os.chdir(outputPath) 
-        if (len(os.listdir(outputPath)) == 0):
+        if len(os.listdir(outputPath)) == 0:
             output = open("output-%s.txt" % currentTime, 'w')
         else:
             control = False
@@ -131,7 +134,7 @@ def fileMaker():
                 else:
                     print("Invalid input. Please try again.")
         return output
-    elif(val == 'n'):
+    elif val == 'n':
         return None
 #fileOverWriter takes the outputPath of the folder containing the output files and prints them to the user.
 #The user then chooses a file from the list to overwrite. The file is respectively renamed and the newly named file is returned.
@@ -156,9 +159,9 @@ def fileOverWriter(outputPath):
 def dynamic(initial, dividend, monthly, years):
     value = str(input("Would you like the option of increasing your monthly contributions after some months? (y/n)"))
     
-    if(value == 'y'):       
+    if value == 'y':       
         reinvest(initial, dividend, monthly, years)         
-    elif(value == 'n'):      
+    elif value == 'n':      
         noReinvest(initial, dividend, monthly, years)       
     else: #if user makes an invalid selection, runs dynamic again
         print("Error: invalid input. Please try again.")
@@ -167,11 +170,11 @@ def dynamic(initial, dividend, monthly, years):
 #stock ticker to extract that tickers dividend for their calculations
 def searchDividend():
     value = str(input("Do you want to search a specific ticker for your dividend calculation? (y/n)"))
-    if(value == 'n'):
+    if value == 'n':
         initial, monthly, years = userValues()
         dividend = float(input("Yearly dividend yield?"))
         dynamic(initial, dividend, monthly, years)
-    elif(value == 'y'):
+    elif value == 'y':
         dividend = scrapeDividend()
         initial, monthly, years = userValues()       
         dynamic(initial, dividend, monthly, years)
@@ -185,7 +188,7 @@ def scrapeDividend():
         searchMain = searchText.select(".column > .table-table")[1].select(".table-row > .table-cell")
         for iter in range(0, len(searchMain)):
             tableText = searchMain[iter].text.replace(" ", "").replace("\n", "")
-            if(tableText == "CurrentYield"):
+            if tableText == "CurrentYield":
                 divText = searchMain[iter + 1].text.replace(" ", "").replace("\n", "").replace("%", "")
                 return float(divText)
     except:
